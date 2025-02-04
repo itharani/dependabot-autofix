@@ -1,56 +1,56 @@
-name: Auto Fix Dependabot Issues
+# name: Auto Fix Dependabot Issues
 
-on:
-  push:
-    branches:
-      - main
-      - develop
-  schedule:
-    - cron: "0 0 * * *"  # Run daily at midnight
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - main
+#       - develop
+#   schedule:
+#     - cron: "0 0 * * *"  # Run daily at midnight
+#   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   pull-requests: write
 
-jobs:
-  fix-dependencies:
-    runs-on: ubuntu-latest
+# jobs:
+#   fix-dependencies:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - name: Set Up Environment
-        run: |
-          sudo apt update
-          sudo apt install -y nodejs npm python3-pip
+#       - name: Set Up Environment
+#         run: |
+#           sudo apt update
+#           sudo apt install -y nodejs npm python3-pip
 
-      - name: Run Auto-Fix Script
-        run: |
-          chmod +x scripts/auto_fix.sh
-          ./scripts/auto_fix.sh
+#       - name: Run Auto-Fix Script
+#         run: |
+#           chmod +x scripts/auto_fix.sh
+#           ./scripts/auto_fix.sh
 
-      - name: Check for Changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          BRANCH_NAME="dependabot-fix-$(date +%s)"
-          git checkout -b $BRANCH_NAME
-          git add .
-          if git diff --cached --exit-code; then
-            echo "No changes detected. Exiting."
-            exit 0
-          fi
-          git commit -m "Auto-fix: Updated dependencies for security vulnerabilities"
-          git push origin $BRANCH_NAME
+#       - name: Check for Changes
+#         run: |
+#           git config --global user.name "github-actions[bot]"
+#           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+#           BRANCH_NAME="dependabot-fix-$(date +%s)"
+#           git checkout -b $BRANCH_NAME
+#           git add .
+#           if git diff --cached --exit-code; then
+#             echo "No changes detected. Exiting."
+#             exit 0
+#           fi
+#           git commit -m "Auto-fix: Updated dependencies for security vulnerabilities"
+#           git push origin $BRANCH_NAME
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          branch: ${{ github.ref_name }}
-          title: "Auto-fix: Dependabot Security Updates"
-          body: "This PR contains automated fixes for security vulnerabilities detected by Dependabot."
-          labels: dependencies, automated
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v5
+#         with:
+#           branch: ${{ github.ref_name }}
+#           title: "Auto-fix: Dependabot Security Updates"
+#           body: "This PR contains automated fixes for security vulnerabilities detected by Dependabot."
+#           labels: dependencies, automated
