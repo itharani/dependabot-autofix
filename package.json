@@ -1,0 +1,9 @@
+{
+    "name": "dependabot-test",
+    "version": "1.0.0",
+    "description": "A test project to auto-fix Dependabot issues",
+    "dependencies": {
+      "express": "4.16.0"
+    }
+  }
+  
