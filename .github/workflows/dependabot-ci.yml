@@ -3,11 +3,10 @@ name: Run Tests for Dependabot PRs
 on:
   pull_request:
     branches:
-      - main  
-      
+      - br1  # Runs only for PRs raised to br1
     types:
       - opened
-      - synchronize  
+      - synchronize  # When Dependabot updates its PR
 
 permissions:
   contents: read
@@ -17,7 +16,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    if: github.actor == 'dependabot[bot]' 
+    if: github.actor == 'dependabot[bot]'  
 
     steps:
       - name: Checkout Repository

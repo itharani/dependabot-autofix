@@ -1,0 +1,8 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"  # Scheduled check (will be overridden by GitHub Actions)
+    open-pull-requests-limit: 10
+    target-branch: "*"  # Runs on all branches
