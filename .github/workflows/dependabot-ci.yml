@@ -40,27 +40,25 @@ jobs:
       - name: Commit Fixed Dependencies (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          if ! git diff --exit-code requirements.txt; then
-         
-            git fetch origin
-            git reset --hard origin/${{ github.head_ref }}
-            git add requirements.txt
-            git commit -m "Auto-fix dependencies in requirements.txt"
-            git add dependency_fixes.txt
-            git commit -m "Record dependency changes"
-            git push --force origin HEAD:${{ github.head_ref }}
-          fi
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff-index --quiet HEAD || (git commit -a -m "Auto-fix dependencies" --allow-empty)
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
-        if: github.actor != 'dependabot[bot]'
+        if: github.actor != 'dependabot[bot]' && (-f dependency_fixes.txt)
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             🔧 **Dependency Auto-Fix Summary**:
             ```
-            $(cat dependency_fixes.txt | sed ':a;N;$!ba;s/\n/\n> /g')
+            $(cat dependency_fixes.txt)
             ```
           comment_tag: dependabot_fix_summary
 
