@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main  
+      - v2-runchecks
     types:
       - opened
       - synchronize  # When Dependabot updates its PR
