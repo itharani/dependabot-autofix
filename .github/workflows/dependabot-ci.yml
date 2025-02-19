@@ -35,7 +35,7 @@ jobs:
       - name: Run Tests
         id: run-tests
         run: |
-          pytest tests --junitxml=results.xml || echo "Tests failed"
+          pytest tests --junitxml=results.xml || echo "::error ::Some tests failed"
 
       - name: Post Test Results to PR
         if: always()
@@ -43,7 +43,7 @@ jobs:
         with:
           message: |
             📝 **Test Results**:
-            - ✅ **All tests passed**: ${{ job.status == 'success' }}
+            - ✅ **All tests passed**: ${{ steps.run-tests.outcome == 'success' }}
             - ❌ **Failures detected**: Check logs for details.
 
             📌 View logs under **Actions → Dependabot Test Workflow**.

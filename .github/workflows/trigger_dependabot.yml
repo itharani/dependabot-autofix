@@ -1,18 +1,16 @@
-# name: Trigger Dependabot on Branch Push
+name: Trigger Dependabot on Push
 
-# on:
-#   push:
-#     branches:
-#       - v2-runchecks  # Run Dependabot when pushing to br1
-#       - '*'  # Run for all branches
+on:
+  push:
+    branches:
+      - "*"  # Run on all branches
 
-# jobs:
-#   trigger-dependabot:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - name: Trigger Dependabot
-#         uses: peter-evans/dependabot-trigger@v2
-#         with:
-#           github-token: ${{ secrets.GITHUB_TOKEN }}
-#           update-type: all
+jobs:
+  trigger-dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Dependabot
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-dependabot
