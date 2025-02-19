@@ -3,7 +3,7 @@ name: Run Tests for Dependabot PRs
 on:
   pull_request:
     branches:
-      - *  # Run on all branches
+      - "*"  # Run on all branches
     types:
       - opened
       - synchronize  # When Dependabot updates its PR
