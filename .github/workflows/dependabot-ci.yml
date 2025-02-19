@@ -47,8 +47,9 @@ jobs:
             git fetch origin
             git reset --hard origin/${{ github.head_ref }}
             git add requirements.txt
-            git add dependency_fixes.txt
             git commit -m "Auto-fix dependencies in requirements.txt"
+            git add dependency_fixes.txt
+            git commit -m "Record dependency changes"
             git push --force origin HEAD:${{ github.head_ref }}
           fi
 
