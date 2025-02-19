@@ -34,6 +34,7 @@ jobs:
         if: github.actor != 'dependabot[bot]'
         id: auto-fix
         run: |
+          pip install termcolor
           python audit_script.py > dependency_fixes.txt || echo "::error ::Dependency fixes failed"
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
