@@ -74,6 +74,7 @@ jobs:
       - name: Run Tests
         id: run-tests
         run: |
+          pip install pytest 
           pytest tests --junitxml=results.xml || echo "::error ::Some tests failed"
 
       - name: Post Test Results to PR
