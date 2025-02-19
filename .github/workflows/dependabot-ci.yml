@@ -35,7 +35,7 @@ jobs:
         id: auto-fix
         run: |
           pip install termcolor
-          python3 auto_script.py | tee dependency_fixes.txt || echo "::error ::Dependency fixes failed"
+          python3 audit_script.py | tee dependency_fixes.txt || echo "::error ::Dependency fixes failed"
 
       - name: Commit Fixed Dependencies (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
