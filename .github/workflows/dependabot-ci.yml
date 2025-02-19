@@ -52,7 +52,15 @@ jobs:
           branch: ${{ github.head_ref }}
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
-        if: github.actor != 'dependabot[bot]' && (-f dependency_fixes.txt)
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          if [ -f dependency_fixes.txt ]; then
+            echo "::set-output name=dependency_fix::true"
+          fi
+        id: check_dependency_fixes
+
+      - name: Comment Dependency Fix Summary
+        if: steps.check_dependency_fixes.outputs.dependency_fix == 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
