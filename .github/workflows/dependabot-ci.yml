@@ -72,21 +72,26 @@ jobs:
 
       - name: Run Tests
         id: run-tests
-        continue-on-error: true
         run: |
           pip install pytest 
-          pytest tests --junitxml=results.xml && echo "status=success" >> $GITHUB_OUTPUT || echo "status=failure" >> $GITHUB_OUTPUT
+          pytest tests --junitxml=results.xml || echo "::error ::Some tests failed"
 
       - name: Post Test Results to PR
-        if: always()
+        if: failure()
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             📝 **Test Results**:
-            {% if steps.run-tests.outputs.status == 'success' %}
-            ✅ **All tests passed!** 🎉
-            {% else %}
-            ❌ **Some tests failed!** Please check the logs for details.
+            - ❌ **Failures detected**: Check logs for details.
+
             📌 View logs under **Actions → PR Test Workflow**.
-            {% endif %}
+          comment_tag: dependabot_tests
+        else: 
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            📝 **Test Results**:
+            - ✅ **All tests passed**
+
+            📌 View logs under **Actions → PR Test Workflow**.
           comment_tag: dependabot_tests
