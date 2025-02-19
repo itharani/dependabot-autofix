@@ -76,7 +76,7 @@ jobs:
           pip install pytest 
           pytest tests --junitxml=results.xml || echo "::error ::Some tests failed"
 
-      - name: Post Test Results to PR
+      - name: Post Test Results (Failure)
         if: failure()
         uses: thollander/actions-comment-pull-request@v2
         with:
@@ -86,12 +86,15 @@ jobs:
 
             📌 View logs under **Actions → PR Test Workflow**.
           comment_tag: dependabot_tests
-        else: 
+
+      - name: Post Test Results (Success)
+        if: success()
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             📝 **Test Results**:
-            - ✅ **All tests passed**
+            - ✅ **All tests passed**.
 
             📌 View logs under **Actions → PR Test Workflow**.
           comment_tag: dependabot_tests
+
