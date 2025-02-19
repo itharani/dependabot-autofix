@@ -1,22 +1,20 @@
-name: Run Tests for Dependabot PRs
+name: Run Tests for PRs
 
 on:
   pull_request:
     branches:
-      - "*"  # Run on all branches
+      - "main"
     types:
       - opened
-      - synchronize  # When Dependabot updates its PR
+      - synchronize
 
 permissions:
   contents: read
   pull-requests: write  
 
 jobs:
-  test:
+  test-dependencies:
     runs-on: ubuntu-latest
-
-    if: github.actor == 'dependabot[bot]'  
 
     steps:
       - name: Checkout Repository
@@ -29,8 +27,25 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install -r app/requirements.txt
+          pip install -r requirements.txt
           pip install pytest
+
+      - name: Run Auto Fix for Dependencies (Non-Dependabot PRs)
+        if: github.actor != 'dependabot[bot]'
+        id: auto-fix
+        run: |
+          python audit_script.py > dependency_fixes.txt || echo "::error ::Dependency fixes failed"
+
+      - name: Record Dependency Changes in PR (Non-Dependabot PRs)
+        if: github.actor != 'dependabot[bot]'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🔧 **Dependency Auto-Fix Summary**:
+            ```
+            $(cat dependency_fixes.txt)
+            ```
+          comment_tag: dependabot_fix_summary
 
       - name: Run Tests
         id: run-tests

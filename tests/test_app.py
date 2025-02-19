@@ -1,17 +1,18 @@
-import unittest
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import pytest
 from src.implementation.app import app
 
-class TestApp(unittest.TestCase):
-    def setUp(self):
-        self.app = app.test_client()
+@pytest.fixture
+def client():
+    with app.test_client() as client:
+        yield client
 
-    def test_home_status_code(self):
-        response = self.app.get("/")
-        self.assertEqual(response.status_code, 200)
+def test_home(client):
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.data == b"Hello, world!"
 
-    def test_home_response_json(self):
-        response = self.app.get("/")
-        self.assertTrue(response.is_json)  # ❌ This will fail because app.py returns text, not JSON
-
-if __name__ == "__main__":
-    unittest.main()
