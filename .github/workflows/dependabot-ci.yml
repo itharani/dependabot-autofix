@@ -43,9 +43,12 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           if ! git diff --exit-code requirements.txt; then
+         
+            git fetch origin
+            git reset --hard origin/${{ github.head_ref }}
             git add requirements.txt
             git commit -m "Auto-fix dependencies in requirements.txt"
-            git push origin HEAD:${{ github.head_ref }}
+            git push --force origin HEAD:${{ github.head_ref }}
           fi
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
