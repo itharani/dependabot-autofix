@@ -9,7 +9,7 @@ on:
       - synchronize
 
 permissions:
-  contents: read
+  contents: write  # Allows committing changes
   pull-requests: write  
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.10.12"
 
       - name: Install Dependencies
         run: |
@@ -35,7 +35,18 @@ jobs:
         id: auto-fix
         run: |
           pip install termcolor
-          python audit_script.py > dependency_fixes.txt || echo "::error ::Dependency fixes failed"
+          python3 auto_script.py | tee dependency_fixes.txt || echo "::error ::Dependency fixes failed"
+
+      - name: Commit Fixed Dependencies (Non-Dependabot PRs)
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          if ! git diff --exit-code requirements.txt; then
+            git add requirements.txt
+            git commit -m "Auto-fix dependencies in requirements.txt"
+            git push origin HEAD:${{ github.head_ref }}
+          fi
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
@@ -44,7 +55,7 @@ jobs:
           message: |
             🔧 **Dependency Auto-Fix Summary**:
             ```
-            $(cat dependency_fixes.txt)
+            $(cat dependency_fixes.txt | sed ':a;N;$!ba;s/\n/\n> /g')
             ```
           comment_tag: dependabot_fix_summary
 
@@ -62,5 +73,5 @@ jobs:
             - ✅ **All tests passed**: ${{ steps.run-tests.outcome == 'success' }}
             - ❌ **Failures detected**: Check logs for details.
 
-            📌 View logs under **Actions → Dependabot Test Workflow**.
+            📌 View logs under **Actions → PR Test Workflow**.
           comment_tag: dependabot_tests
