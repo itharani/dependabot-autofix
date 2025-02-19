@@ -45,11 +45,12 @@ jobs:
           git add -A
           git diff-index --quiet HEAD || (git commit -a -m "Auto-fix dependencies" --allow-empty)
 
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}
+      - name: Push Changes
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          git fetch origin
+          git pull --rebase origin ${{ github.head_ref }}
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
