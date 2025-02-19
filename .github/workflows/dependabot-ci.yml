@@ -28,7 +28,6 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest
 
       - name: Run Auto Fix for Dependencies (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
