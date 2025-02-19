@@ -12,5 +12,7 @@ jobs:
       - name: Trigger Dependabot
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}  # Use the stored PAT token
           event-type: trigger-dependabot
+          repository: itharani/dependabot-autofix
+
