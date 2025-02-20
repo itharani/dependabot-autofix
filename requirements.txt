@@ -1,2 +1,10 @@
-Flask==1.1.2
-Werkzeug==1.0.1
+Flask==2.2.5
+# Outdated & vulnerable (Dependabot will suggest Flask>=2.0.0)
+requests==2.32.0
+# Has security issues
+Jinja2==3.1.5
+# Just an outdated package for exampl
+# pip-audit: subdependency explicitly fixed
+idna==3.7
+    # pip-audit: subdependency explicitly fixed
+urllib3==1.26.19

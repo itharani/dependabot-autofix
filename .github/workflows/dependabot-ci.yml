@@ -9,7 +9,7 @@ on:
       - synchronize
 
 permissions:
-  contents: read
+  contents: write  # Allows committing changes
   pull-requests: write  
 
 jobs:
@@ -23,21 +23,44 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.10.12"
 
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install pytest
 
       - name: Run Auto Fix for Dependencies (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
         id: auto-fix
         run: |
-          python audit_script.py > dependency_fixes.txt || echo "::error ::Dependency fixes failed"
+          pip install termcolor
+          python3 audit_script.py | tee dependency_fixes.txt || echo "::error ::Dependency fixes failed"
+
+      - name: Commit Fixed Dependencies (Non-Dependabot PRs)
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -A
+          git diff-index --quiet HEAD || (git commit -a -m "Auto-fix dependencies" --allow-empty)
+
+      - name: Push Changes
+        if: github.actor != 'dependabot[bot]'
+        run: |
+          git fetch origin
+          git pull --rebase origin ${{ github.head_ref }}
+          git push origin HEAD:${{ github.head_ref }}
 
       - name: Record Dependency Changes in PR (Non-Dependabot PRs)
         if: github.actor != 'dependabot[bot]'
+        run: |
+          if [ -f dependency_fixes.txt ]; then
+            echo "::set-output name=dependency_fix::true"
+          fi
+        id: check_dependency_fixes
+
+      - name: Comment Dependency Fix Summary
+        if: steps.check_dependency_fixes.outputs.dependency_fix == 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
@@ -47,19 +70,60 @@ jobs:
             ```
           comment_tag: dependabot_fix_summary
 
+      # - name: Run Tests
+      #   id: run-tests
+      #   run: |
+      #     pip install pytest 
+      #     pytest tests --junitxml=results.xml || echo "::error ::Some tests failed"
+
+      # - name: Post Test Results (Failure)
+      #   if: failure()
+      #   uses: thollander/actions-comment-pull-request@v2
+      #   with:
+      #     message: |
+      #       📝 **Test Results**:
+      #       - ❌ **Failures detected**: Check logs for details.
+
+      #       📌 View logs under **Actions → PR Test Workflow**.
+      #     comment_tag: dependabot_tests
+
+      # - name: Post Test Results (Success)
+      #   if: success()
+      #   uses: thollander/actions-comment-pull-request@v2
+      #   with:
+      #     message: |
+      #       📝 **Test Results**:
+      #       - ✅ **All tests passed**.
+
+      #       📌 View logs under **Actions → PR Test Workflow**.
+      #     comment_tag: dependabot_tests
+
       - name: Run Tests
         id: run-tests
         run: |
-          pytest tests --junitxml=results.xml || echo "::error ::Some tests failed"
+          pip install pytest 
+          pytest tests --junitxml=results.xml || echo "TEST_FAILED=true" >> $GITHUB_ENV
 
-      - name: Post Test Results to PR
-        if: always()
+      - name: Post Test Results (Failure)
+        if: env.TEST_FAILED == 'true'
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             📝 **Test Results**:
-            - ✅ **All tests passed**: ${{ steps.run-tests.outcome == 'success' }}
             - ❌ **Failures detected**: Check logs for details.
 
-            📌 View logs under **Actions → Dependabot Test Workflow**.
+            📌 View logs under **Actions → PR Test Workflow**.
           comment_tag: dependabot_tests
+
+      - name: Post Test Results (Success)
+        if: env.TEST_FAILED != 'true'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            📝 **Test Results**:
+            - ✅ **All tests passed**.
+
+            📌 View logs under **Actions → PR Test Workflow**.
+          comment_tag: dependabot_tests
+
+

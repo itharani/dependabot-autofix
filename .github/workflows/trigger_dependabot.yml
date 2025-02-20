@@ -1,18 +1,18 @@
-name: Trigger Dependabot on Push
+# name: Trigger Dependabot on Push
 
-on:
-  push:
-    branches:
-      - "*"  # Run on all branches
+# on:
+#   push:
+#     branches:
+#       - "*"  # Run on all branches
 
-jobs:
-  trigger-dependabot:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Dependabot
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.PAT_TOKEN }}  # Use the stored PAT token
-          event-type: trigger-dependabot
-          repository: itharani/dependabot-autofix
+# jobs:
+#   trigger-dependabot:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Trigger Dependabot
+#         uses: peter-evans/repository-dispatch@v2
+#         with:
+#           token: ${{ secrets.PAT_TOKEN }}  # Use the stored PAT token
+#           event-type: trigger-dependabot
+#           repository: itharani/dependabot-autofix
 
