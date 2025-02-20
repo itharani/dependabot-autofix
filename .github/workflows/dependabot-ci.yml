@@ -25,7 +25,10 @@ jobs:
         with:
           python-version: "3.10.12"
 
+      # prep to run audit_script.py if not dependabot
+
       - name: Install Dependencies
+        if: github.actor != 'dependabot[bot]'
         run: |
           pip install -r requirements.txt
 
@@ -51,24 +54,24 @@ jobs:
           git pull --rebase origin ${{ github.head_ref }}
           git push origin HEAD:${{ github.head_ref }}
 
-      - name: Record Dependency Changes in PR (Non-Dependabot PRs)
-        if: github.actor != 'dependabot[bot]'
-        run: |
-          if [ -f dependency_fixes.txt ]; then
-            echo "::set-output name=dependency_fix::true"
-          fi
-        id: check_dependency_fixes
+      # - name: Record Dependency Changes in PR (Non-Dependabot PRs)
+      #   if: github.actor != 'dependabot[bot]'
+      #   run: |
+      #     if [ -f dependency_fixes.txt ]; then
+      #       echo "::set-output name=dependency_fix::true"
+      #     fi
+      #   id: check_dependency_fixes
 
-      - name: Comment Dependency Fix Summary
-        if: steps.check_dependency_fixes.outputs.dependency_fix == 'true'
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            🔧 **Dependency Auto-Fix Summary**:
-            ```
-            $(cat dependency_fixes.txt)
-            ```
-          comment_tag: dependabot_fix_summary
+      # - name: Comment Dependency Fix Summary
+      #   if: steps.check_dependency_fixes.outputs.dependency_fix == 'true'
+      #   uses: thollander/actions-comment-pull-request@v2
+      #   with:
+      #     message: |
+      #       🔧 **Dependency Auto-Fix Summary**:
+      #       ```
+      #       $(cat dependency_fixes.txt)
+      #       ```
+      #     comment_tag: dependabot_fix_summary
 
       # - name: Run Tests
       #   id: run-tests
