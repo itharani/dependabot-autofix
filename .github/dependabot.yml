@@ -1,7 +1,7 @@
-version: 2
-updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    target-branch: "*" # Update PRs against the default branch
-    schedule:
-      interval: "daily"
+# version: 2
+# updates:
+#   - package-ecosystem: "pip" # See documentation for possible values
+#     directory: "/" # Location of package manifests
+#     target-branch: "*" # Update PRs against the default branch
+#     schedule:
+#       interval: "daily"
